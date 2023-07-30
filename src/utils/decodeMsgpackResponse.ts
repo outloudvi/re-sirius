@@ -1,7 +1,7 @@
 import { decode } from "msgpack-lite"
 import { ExtBuffer } from "msgpack-lite/lib/ext-buffer"
 
-import lz4Decompress from "./lz4Decompress.js"
+import lz4Decompress from "./lz4Decompress"
 
 export default function decodeMsgpackResponse(buf: Buffer) {
   const cleanedBuf = Buffer.from(
