@@ -1,0 +1,17 @@
+{
+  "type": "module",
+  "scripts": {
+    "test": "mocha **/*.spec.js",
+    "test:w": "mocha --watch --parallel **/*.spec.js"
+  },
+  "dependencies": {
+    "lz4": "^0.6.5",
+    "msgpack-lite": "^0.1.26"
+  },
+  "devDependencies": {
+    "@types/lz4": "^0.6.1",
+    "@types/msgpack-lite": "^0.1.8",
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0"
+  }
+}
