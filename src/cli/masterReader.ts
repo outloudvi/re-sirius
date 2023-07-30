@@ -37,14 +37,14 @@ class MasterReader {
       // the first payload is the tree
       console.debug("Reading MM tree")
       this.#tree = d
-      fs.writeFileSync("mm/__tree.json", JSON.stringify(d))
+      fs.writeFileSync("mm/__tree.json", JSON.stringify(d, null, 2))
     } else {
       const [tableName, [offset, size]] = Object.entries(this.#tree)[
         this.#tableId++
       ]
       console.debug(`Reading part: ${tableName} - expected size: ${size}`)
       const data = d instanceof ExtBuffer ? decompress(d) : d
-      fs.writeFileSync(`mm/${tableName}.json`, JSON.stringify(data))
+      fs.writeFileSync(`mm/${tableName}.json`, JSON.stringify(data, null, 2))
     }
   }
 }
