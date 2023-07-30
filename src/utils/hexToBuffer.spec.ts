@@ -1,5 +1,5 @@
 import { expect } from "chai"
-import hexToBuffer from "./hexToBuffer.js"
+import hexToBuffer from "./hexToBuffer"
 
 it("hexToBuffer", function () {
   expect(hexToBuffer("0a 00 0b 0c").toString("hex")).to.eq("0a000b0c")

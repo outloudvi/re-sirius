@@ -1,7 +1,7 @@
 import { expect } from "chai"
-import decodeMsgpackResponse from "./decodeMsgpackResponse.js"
-import hexToBuffer from "./hexToBuffer.js"
-import { ExtBuffer } from "msgpack-lite/lib/ext-buffer.js"
+import decodeMsgpackResponse from "./decodeMsgpackResponse"
+import hexToBuffer from "./hexToBuffer"
+import { ExtBuffer } from "msgpack-lite/lib/ext-buffer"
 
 const payloadOne = `
 92 d4 62 01 c6 00 00 00 02 10 90 92 c7 03 62 cd

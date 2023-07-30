@@ -11,11 +11,8 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "incremental": true,
-    "baseUrl": ".",
-    "outDir": "dist",
-    "paths": {
-      "@/components/*": ["components/*"]
-    }
+    "baseUrl": "src",
+    "outDir": "dist"
   },
   "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules", "**/*.spec.ts"]
