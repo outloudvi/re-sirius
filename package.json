@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "build": "tsc",
-    "test": "mocha **/*.spec.js",
-    "test:w": "mocha --watch --parallel **/*.spec.js"
+    "build:bin": "esbuild src/cli/masterReader.ts --bundle --platform=node --target=node16 --packages=external --outfile=bin/masterReader",
+    "test": "mocha",
+    "test:w": "mocha --watch --parallel"
   },
   "dependencies": {
     "lz4": "^0.6.5",
@@ -15,6 +16,8 @@
     "@types/lz4": "^0.6.1",
     "@types/msgpack-lite": "^0.1.8",
     "chai": "^4.3.7",
+    "esbuild": "^0.18.17",
+    "esbuild-register": "^3.4.2",
     "mocha": "^10.2.0",
     "typescript": "^5.1.6"
   },

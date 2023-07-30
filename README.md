@@ -4,6 +4,12 @@
 
 ```sh
 pnpm install
-pnpm run build
-node dist/cli/masterReader.ts masterdata.db
+pnpm run build:bin
+node bin/masterReader.ts masterdata.db
+```
+
+## Tests
+
+```sh
+pnpm run test
 ```
