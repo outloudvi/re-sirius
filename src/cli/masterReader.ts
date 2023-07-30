@@ -2,14 +2,14 @@ import * as fs from "node:fs"
 import * as msgpack from "msgpack-lite"
 import { ExtBuffer } from "msgpack-lite/lib/ext-buffer"
 
-import lz4Decompress from "./lz4Decompress.js"
+import lz4Decompress from "../utils/lz4Decompress"
 
 function decompress(data: ExtBuffer) {
   if (data.type !== 0x63) {
     throw Error(`Invalid LZ4Block payload - type=${data.type}`)
   }
   // the first 5 bytes is a "int 32" indicating the decompressed size
-  const lz4Payload = data.buffer.slice(5)
+  const lz4Payload = data.buffer.subarray(5)
   const decompressedPayload = lz4Decompress(lz4Payload)
   try {
     return msgpack.decode(decompressedPayload)
