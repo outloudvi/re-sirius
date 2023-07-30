@@ -1,7 +1,7 @@
-export default function hexToBuffer(hex) {
+export default function hexToBuffer(hex: string): Buffer {
   return Buffer.from(
     hex
-      .replaceAll("\n", " ")
+      .replace(/\n/g, " ")
       .split(" ")
       .filter((x) => x)
       .map((x) => Number.parseInt(x, 16))

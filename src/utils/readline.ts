@@ -1,6 +1,6 @@
-export default function read() {
+export default function read(): Promise<Buffer> {
   return new Promise((resolve, reject) => {
-    const buf = []
+    const buf: Buffer[] = []
     process.stdin.on("data", function (d) {
       buf.push(Buffer.from(d))
     })

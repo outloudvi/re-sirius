@@ -1,10 +1,10 @@
-import fs from "node:fs"
-import msgpack from "msgpack-lite"
-import { ExtBuffer } from "msgpack-lite/lib/ext-buffer.js"
+import * as fs from "node:fs"
+import * as msgpack from "msgpack-lite"
+import { ExtBuffer } from "msgpack-lite/lib/ext-buffer"
 
 import lz4Decompress from "./lz4Decompress.js"
 
-function decompress(data) {
+function decompress(data: ExtBuffer) {
   if (data.type !== 0x63) {
     throw Error(`Invalid LZ4Block payload - type=${data.type}`)
   }
@@ -20,7 +20,7 @@ function decompress(data) {
 }
 
 class MasterReader {
-  #tree = null
+  #tree: [string, [number, number]][] | null = null
   #tableId = 0
 
   init() {
@@ -32,7 +32,7 @@ class MasterReader {
     }
     fs.mkdirSync("mm/")
   }
-  onData(d) {
+  onData(d: any) {
     if (this.#tree === null) {
       // the first payload is the tree
       console.debug("Reading MM tree")
