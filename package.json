@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "tsc",
-    "build:bin": "esbuild src/cli/masterReader.ts --bundle --platform=node --target=node16 --packages=external --outfile=bin/masterReader",
+    "build:bin": "esbuild src/cli/* --bundle --platform=node --target=node16 --packages=external --outdir=bin/",
     "test": "mocha",
     "test:w": "mocha --watch --parallel"
   },
