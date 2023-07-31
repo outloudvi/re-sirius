@@ -2,7 +2,7 @@ import * as fs from "node:fs"
 import * as msgpack from "msgpack-lite"
 import { ExtBuffer } from "msgpack-lite/lib/ext-buffer"
 
-import lz4Decompress from "../utils/lz4Decompress"
+import lz4Decompress from "#/utils/lz4Decompress"
 
 function decompress(data: ExtBuffer) {
   if (data.type !== 0x63) {

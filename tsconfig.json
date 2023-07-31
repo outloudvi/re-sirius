@@ -12,7 +12,11 @@
     "isolatedModules": true,
     "incremental": true,
     "baseUrl": "src",
-    "outDir": "dist"
+    "outDir": "dist",
+    "paths": {
+      "#/utils/*": ["utils/*"],
+      "#/client/*": ["client/*"]
+    }
   },
   "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules", "**/*.spec.ts"]
