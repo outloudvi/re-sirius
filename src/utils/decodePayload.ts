@@ -24,16 +24,26 @@ function buildStructInside(x: any) {
 }
 
 export function unpackMsgpackLz4Payload(obj: any): any {
-  if (Array.isArray(obj) && obj.length === 2 && obj[0] instanceof ExtBuffer) {
-    if (obj[0].type !== 0x62) {
-      throw Error(`Not an LZ4BlockArray item - type = ${obj[0].type}`)
-    }
-    // this is an LZ4 compressed block
+  if (
+    Array.isArray(obj) &&
+    obj.length === 2 &&
+    obj[0] instanceof ExtBuffer &&
+    obj[0].type === 0x62
+  ) {
+    // Lz4BlockArray
     const innerMsgpackBuf = lz4Decompress(obj[1])
     const decodedInner = decode(innerMsgpackBuf)
     return decodedInner
+  } else if (obj instanceof ExtBuffer && obj.type === 0x63) {
+    // Lz4Block
+    // the first 5 bytes is a "int 32" indicating the decompressed size
+    const lz4Payload = obj.buffer.subarray(5)
+    const innerMsgpackBuf = lz4Decompress(lz4Payload)
+    const decodedInner = decode(innerMsgpackBuf)
+    return decodedInner
+  } else {
+    return obj
   }
-  return obj
 }
 
 export default function decodePayload(buf: Buffer): any[] {

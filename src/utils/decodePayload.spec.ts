@@ -104,6 +104,21 @@ d0 06 00 e0 02 04 ab 45 76 65 6e 74 2f 32 30 30
 02 10 90                                       
 `
 
+const payloadTwo = `
+c7 63 63 d2 00 00 00 5c
+f0 4d dc 00 14 93 01 00
+02 93 01 01 04 93 01 02
+06 93 01 03 08 93 01 04
+0a 93 02 00 05 93 02 01
+0a 93 02 02 0f 93 02 03
+14 93 02 04 19 93 03 00
+14 93 03 01 28 93 03 02
+3c 93 03 03 50 93 03 04
+64 93 04 00 cc fa 93 04
+01 cd 01 5e 93 04 02 cd
+01 90 93 04 03 cd 01 c2
+93 04 04 cd 02 26`
+
 const decodedOne = [
   [
     11,
@@ -117,15 +132,44 @@ const decodedOne = [
   ],
 ]
 
+const decodedTwo = [
+  [
+    [1, 0, 2],
+    [1, 1, 4],
+    [1, 2, 6],
+    [1, 3, 8],
+    [1, 4, 10],
+    [2, 0, 5],
+    [2, 1, 10],
+    [2, 2, 15],
+    [2, 3, 20],
+    [2, 4, 25],
+    [3, 0, 20],
+    [3, 1, 40],
+    [3, 2, 60],
+    [3, 3, 80],
+    [3, 4, 100],
+    [4, 0, 250],
+    [4, 1, 350],
+    [4, 2, 400],
+    [4, 3, 450],
+    [4, 4, 550],
+  ],
+]
+
 it("decodePayload", function () {
   expect(decodePayload(hexToBuffer(payloadOne))).deep.eq(decodedOne)
 })
 
 it("unpackMsgpackLz4Payload", function () {
+  // Lz4BlockArray
   expect(
     unpackMsgpackLz4Payload([
       ExtBuffer(Buffer.from([0x01]), 0x62),
       Buffer.from([0x10, 0x90]),
     ])
   ).deep.eq([])
+
+  // Lz4Block
+  expect(decodePayload(hexToBuffer(payloadTwo))).deep.eq(decodedTwo)
 })
