@@ -1,5 +1,5 @@
 import { expect } from "chai"
-import decodeMsgpackResponse from "./decodeMsgpackResponse"
+import decodePayload, { unpackMsgpackLz4Payload } from "./decodePayload"
 import hexToBuffer from "./hexToBuffer"
 import { ExtBuffer } from "msgpack-lite/lib/ext-buffer"
 
@@ -105,16 +105,27 @@ d0 06 00 e0 02 04 ab 45 76 65 6e 74 2f 32 30 30
 `
 
 const decodedOne = [
-  11,
-  '[{"Element": 1,\r\n "Data": "「ワールドダイスター 夢のステラリウム」をご利用いただき誠にありがとうございます。"}\r\n,{"Element": 2,\r\n "Data": "【予告】イベント「god is no /w/ here」について"}\r\n,{"Element": 3,\r\n "Data": "あらすじ"}\r\n,{"Element": 4,\r\n "Data": "Eden加入前の大黒は、憧れの劇団で活躍するぱんだ達を羨ましく思っていた。\r\n『今年こそシリウスに行く』と３回目のオーディションを受けるが――結果はまたしても不合格。\r\n自信を失い憧れが憎しみに変わっていく大黒に、救いの手を差し伸べたのは……。"}\r\n,{"Element": 3,\r\n "Data": "開催期間"}\r\n,{"Element": 4,\r\n "Data": "2023年7月31日 17:00 ～ 2023年8月8日 22:00"}\r\n,{"Element": 3,\r\n "Data": "イベント概要"}\r\n,{"Element": 4,\r\n "Data": "期間中に「公演」「協力公演」「稽古」をプレイすることで、スタミナ消費量やスコアなどに応じてイベントポイントを獲得することができます。\r\n獲得したイベントポイントに応じて「イベントストーリー」解放、ならびにランキング報酬を獲得できます。\r\n獲得したイベントポイントは「イベント交換所」にて、<color=#ee5f5f>イベント★3アクター</color>や<color=#ee5f5f>イベントSRポスター</color>他豪華な報酬と交換することができます。"}\r\n,{"Element": 3,\r\n "Data": "イベントポイントについて"}\r\n,{"Element": 4,\r\n "Data": "イベントポイントは特定のアクターまたは属性を編成して公演を行うことで、入手量が増加します。\r\n\r\n<color=#ee5f5f>対象アクター</color>\r\n・連尺野初魅\r\n・烏森大黒\r\n・萬容\r\n・筆島しぐれ\r\n\r\n<color=#ee5f5f>対象属性</color>\r\n<color=#ff679d>憐属性</color>"}\r\n\r\n,{"Element": 4,\r\n "Data": "一致しているアクターまたは属性を1人編成するごとにイベントポイントの獲得量が25％増加し、アクターと属性の両方が一致しているアクターを編成した場合はイベントポイントの獲得量が50％増加します。"}\r\n,{"Element": 3,\r\n "Data": "注意事項"}\r\n,{"Element": 4,\r\n "Data": "・開催スケジュール及びイベント内容は予告なく変更する場合がございます。"}\r\n,{"Element": 6,\r\n "Data": "Information/0"}\r\n,{"Element": 5,\r\n "Data": "今後とも「ワールドダイスター 夢のステラリウム」をよろしくお願いいたします。"}\r\n]',
-  "【予告】イベント「god is no /w/ here」開催！",
-  ExtBuffer(Buffer.from([100, 197, 125, 208]), 255),
-  ExtBuffer(Buffer.from([100, 197, 125, 208]), 255),
-  2,
-  4,
-  "Event/20001",
+  [
+    11,
+    '[{"Element": 1,\r\n "Data": "「ワールドダイスター 夢のステラリウム」をご利用いただき誠にありがとうございます。"}\r\n,{"Element": 2,\r\n "Data": "【予告】イベント「god is no /w/ here」について"}\r\n,{"Element": 3,\r\n "Data": "あらすじ"}\r\n,{"Element": 4,\r\n "Data": "Eden加入前の大黒は、憧れの劇団で活躍するぱんだ達を羨ましく思っていた。\r\n『今年こそシリウスに行く』と３回目のオーディションを受けるが――結果はまたしても不合格。\r\n自信を失い憧れが憎しみに変わっていく大黒に、救いの手を差し伸べたのは……。"}\r\n,{"Element": 3,\r\n "Data": "開催期間"}\r\n,{"Element": 4,\r\n "Data": "2023年7月31日 17:00 ～ 2023年8月8日 22:00"}\r\n,{"Element": 3,\r\n "Data": "イベント概要"}\r\n,{"Element": 4,\r\n "Data": "期間中に「公演」「協力公演」「稽古」をプレイすることで、スタミナ消費量やスコアなどに応じてイベントポイントを獲得することができます。\r\n獲得したイベントポイントに応じて「イベントストーリー」解放、ならびにランキング報酬を獲得できます。\r\n獲得したイベントポイントは「イベント交換所」にて、<color=#ee5f5f>イベント★3アクター</color>や<color=#ee5f5f>イベントSRポスター</color>他豪華な報酬と交換することができます。"}\r\n,{"Element": 3,\r\n "Data": "イベントポイントについて"}\r\n,{"Element": 4,\r\n "Data": "イベントポイントは特定のアクターまたは属性を編成して公演を行うことで、入手量が増加します。\r\n\r\n<color=#ee5f5f>対象アクター</color>\r\n・連尺野初魅\r\n・烏森大黒\r\n・萬容\r\n・筆島しぐれ\r\n\r\n<color=#ee5f5f>対象属性</color>\r\n<color=#ff679d>憐属性</color>"}\r\n\r\n,{"Element": 4,\r\n "Data": "一致しているアクターまたは属性を1人編成するごとにイベントポイントの獲得量が25％増加し、アクターと属性の両方が一致しているアクターを編成した場合はイベントポイントの獲得量が50％増加します。"}\r\n,{"Element": 3,\r\n "Data": "注意事項"}\r\n,{"Element": 4,\r\n "Data": "・開催スケジュール及びイベント内容は予告なく変更する場合がございます。"}\r\n,{"Element": 6,\r\n "Data": "Information/0"}\r\n,{"Element": 5,\r\n "Data": "今後とも「ワールドダイスター 夢のステラリウム」をよろしくお願いいたします。"}\r\n]',
+    "【予告】イベント「god is no /w/ here」開催！",
+    new Date(1690664400000),
+    new Date(1690664400000),
+    2,
+    4,
+    "Event/20001",
+  ],
 ]
 
-it("decodeMsgpackResponse", function () {
-  expect(decodeMsgpackResponse(hexToBuffer(payloadOne))).deep.eq(decodedOne)
+it("decodePayload", function () {
+  expect(decodePayload(hexToBuffer(payloadOne))).deep.eq(decodedOne)
+})
+
+it("unpackMsgpackLz4Payload", function () {
+  expect(
+    unpackMsgpackLz4Payload([
+      ExtBuffer(Buffer.from([0x01]), 0x62),
+      Buffer.from([0x10, 0x90]),
+    ])
+  ).deep.eq([])
 })
