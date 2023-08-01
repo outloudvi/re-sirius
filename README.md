@@ -4,8 +4,7 @@
 
 ```sh
 pnpm install
-pnpm run build:bin
-node bin/masterReader.ts masterdata.db
+node -r esbuild-register src/cli/masterReader.ts masterdata.db
 ```
 
 ## Tests
