@@ -51,11 +51,23 @@ export default function decodePayload(buf: Buffer): any[] {
   decodeBuf.write(buf)
   decodeBuf.flush()
   const items = decodeBuf.buffers.map(unpackMsgpackLz4Payload)
+  const startFrom = items.findIndex(
+    (x) => !(Array.isArray(x) && x.length === 0)
+  )
+  const endAt = findLastExistingElem(items)
 
-  return items
-    .filter((x) => !(Array.isArray(x) && x.length === 0))
-    .map((x) => {
-      buildStructInside(x)
-      return x
-    })
+  return items.slice(startFrom, endAt + 1).map((x) => {
+    buildStructInside(x)
+    return x
+  })
+}
+
+function findLastExistingElem(items: any[]): number {
+  for (let i = items.length - 1; i >= 0; i--) {
+    const item = items[i]
+    if (!(Array.isArray(item) && item.length === 0)) {
+      return i
+    }
+  }
+  return 0
 }
