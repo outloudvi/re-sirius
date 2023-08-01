@@ -26,4 +26,4 @@ jobs:
           version: 8
 
       - name: Run tests
-        run: pnpm run tests
+        run: pnpm run test
