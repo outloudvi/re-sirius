@@ -1,0 +1,3 @@
+[submodule "src/client"]
+	path = src/client
+	url = git@github.com:outloudvi/re-sirius-dash.git
