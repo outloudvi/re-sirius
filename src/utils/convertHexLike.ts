@@ -14,7 +14,9 @@ export default function convertHexLike(s: string): string {
     return s
   }
 
-  const startIndex = lineRef.index! - 1
-  const endIndex = startIndex + lineRef[0].length - 1
-  return lines.map((x) => x.slice(startIndex, endIndex + 1).trim()).join("\n")
+  const startIndex = lineRef.index!
+  const endIndex = startIndex + lineRef[0].length
+  return lines
+    .map((x) => (" " + x + " ").slice(startIndex, endIndex + 1).trim())
+    .join("\n")
 }
