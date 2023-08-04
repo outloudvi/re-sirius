@@ -2,7 +2,7 @@ import { decode } from "msgpack-lite"
 import { DecodeBuffer } from "msgpack-lite/lib/decode-buffer"
 import { ExtBuffer } from "msgpack-lite/lib/ext-buffer"
 
-import lz4Decompress from "./lz4Decompress"
+import { decompress } from "./lz4"
 
 function buildStructInside(x: any) {
   if (!Array.isArray(x)) return
@@ -31,14 +31,14 @@ export function unpackMsgpackLz4Payload(obj: any): any {
     obj[0].type === 0x62
   ) {
     // Lz4BlockArray
-    const innerMsgpackBuf = lz4Decompress(obj[1])
+    const innerMsgpackBuf = decompress(obj[1])
     const decodedInner = decode(innerMsgpackBuf)
     return decodedInner
   } else if (obj instanceof ExtBuffer && obj.type === 0x63) {
     // Lz4Block
     // the first 5 bytes is a "int 32" indicating the decompressed size
     const lz4Payload = obj.buffer.subarray(5)
-    const innerMsgpackBuf = lz4Decompress(lz4Payload)
+    const innerMsgpackBuf = decompress(lz4Payload)
     const decodedInner = decode(innerMsgpackBuf)
     return decodedInner
   } else {
@@ -50,6 +50,8 @@ export default function decodePayload(buf: Buffer): any[] {
   const decodeBuf = DecodeBuffer()
   decodeBuf.write(buf)
   decodeBuf.flush()
+  // empty data
+  if (!decodeBuf.buffers) return []
   const items = decodeBuf.buffers.map(unpackMsgpackLz4Payload)
   const startFrom = items.findIndex(
     (x) => !(Array.isArray(x) && x.length === 0)
