@@ -10,10 +10,12 @@
   },
   "dependencies": {
     "lz4": "^0.6.5",
-    "msgpack-lite": "^0.1.26"
+    "msgpack-lite": "^0.1.26",
+    "undici": "^5.22.1"
   },
   "devDependencies": {
     "@types/lz4": "^0.6.1",
+    "@types/mocha": "^10.0.1",
     "@types/msgpack-lite": "^0.1.8",
     "chai": "^4.3.7",
     "esbuild": "^0.18.17",
