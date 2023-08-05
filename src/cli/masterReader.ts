@@ -59,7 +59,6 @@ class MasterReader {
       if (structDef.length === 0) {
         console.warn(`No struct definition found for ${tableName}`)
       }
-      console.log(tableName, data[0], structDef)
       fs.writeFileSync(
         `mm/${tableName}.json`,
         JSON.stringify(mergeDataAndStruct(data, structDef), null, 2)
