@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs"
+import { inspect } from "node:util"
 
 import decodePayload from "#/utils/decodePayload"
 import hexToBuffer from "#/utils/hexToBuffer"
@@ -6,12 +7,23 @@ import readline from "#/utils/readline"
 import convertHexLike from "#/utils/convertHexLike"
 ;(async () => {
   if (process.argv.length > 2) {
-    console.log(decodePayload(readFileSync(process.argv[2])))
-    return
+    const payloads = decodePayload(readFileSync(process.argv[2]))
+    console.log(
+      inspect(payloads, {
+        depth: Infinity,
+        maxArrayLength: Infinity,
+      })
+    )
   } else {
     const text = await readline()
+    const payloads = decodePayload(
+      hexToBuffer(convertHexLike(text.toString("utf-8")))
+    )
     console.log(
-      decodePayload(hexToBuffer(convertHexLike(text.toString("utf-8"))))
+      inspect(payloads, {
+        depth: Infinity,
+        maxArrayLength: Infinity,
+      })
     )
   }
 })()
