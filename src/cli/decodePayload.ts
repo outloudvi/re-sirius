@@ -8,22 +8,12 @@ import convertHexLike from "#/utils/convertHexLike"
 ;(async () => {
   if (process.argv.length > 2) {
     const payloads = decodePayload(readFileSync(process.argv[2]))
-    console.log(
-      inspect(payloads, {
-        depth: Infinity,
-        maxArrayLength: Infinity,
-      })
-    )
+    console.log(JSON.stringify(payloads, null, 2))
   } else {
     const text = await readline()
     const payloads = decodePayload(
       hexToBuffer(convertHexLike(text.toString("utf-8")))
     )
-    console.log(
-      inspect(payloads, {
-        depth: Infinity,
-        maxArrayLength: Infinity,
-      })
-    )
+    console.log(JSON.stringify(payloads, null, 2))
   }
 })()
