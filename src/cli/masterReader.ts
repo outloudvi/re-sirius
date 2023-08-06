@@ -3,28 +3,72 @@ import decodePayload from "#/utils/decodePayload"
 import getClassProperties from "#/utils/getClassProperties"
 import type { ClassField } from "#/utils/getClassProperties"
 
-function buildNameArray(structDef: ClassField[]): string[] {
-  const ret: string[] = []
-  for (const item of structDef) {
-    ret[item.index] = item.name
+const CSharpBuiltinTypes = [
+  "bool",
+  "byte",
+  "sbyte",
+  "char",
+  "decimal",
+  "double",
+  "float",
+  "int",
+  "uint",
+  "nint",
+  "nuint",
+  "long",
+  "ulong",
+  "short",
+  "ushort",
+  "object",
+  "string",
+  "dynamic",
+]
+
+const StructDefCache: Record<string, ClassField[]> = {}
+
+function mergeStructAndSchema(
+  data: any,
+  className: string,
+  srcLines: string[]
+): Record<string, any> {
+  if (CSharpBuiltinTypes.includes(className)) {
+    return data
   }
-  return ret
+  const structDef =
+    StructDefCache[className] ??
+    (StructDefCache[className] = getClassProperties(className, srcLines))
+
+  const v: Record<string, any> = {}
+  for (const [key, val] of Object.entries(data)) {
+    const prop = structDef.find((x) => x.index === Number(key))
+    if (prop === undefined) {
+      console.warn(`Unknown property order ${key} in ${className}, skipping`)
+      continue
+    }
+    const k = prop.name
+    if (Array.isArray(val)) {
+      if (prop.type.endsWith("[]")) {
+        // need deeper merge
+        const innerTypeName = prop.type.replace(/\[\]$/, "")
+        v[k] = val.map((x) => mergeStructAndSchema(x, innerTypeName, srcLines))
+      } else {
+        v[k] = mergeStructAndSchema(val, prop.type, srcLines)
+      }
+    } else {
+      v[k] = val
+    }
+  }
+  return v
 }
 
-function mergeDataAndStruct(
+function mergeArrayAndSchema(
   data: any[][],
-  structDef: ClassField[]
+  className: string,
+  srcLines: string[]
 ): Record<string, any>[] {
   const ret: Record<string, any>[] = []
   for (const line of data) {
-    const v: Record<string, any> = {}
-    const nameArray = buildNameArray(structDef)
-    for (const [key, val] of Object.entries(line)) {
-      const k = nameArray[Number(key)]
-      if (k === undefined) continue
-      v[k] = val
-    }
-    ret.push(v)
+    ret.push(mergeStructAndSchema(line, className, srcLines))
   }
   return ret
 }
@@ -51,17 +95,18 @@ class MasterReader {
       this.#tree = data
       fs.writeFileSync("mm/__tree.json", JSON.stringify(data, null, 2))
     } else {
-      const [tableName, [offset, size]] = Object.entries(this.#tree)[
+      const [className, [offset, size]] = Object.entries(this.#tree)[
         this.#tableId++
       ]
-      console.debug(`Reading part: ${tableName} - expected size: ${size}`)
-      const structDef = getClassProperties(tableName, this.#srcLines)
-      if (structDef.length === 0) {
-        console.warn(`No struct definition found for ${tableName}`)
-      }
+      console.debug(`Reading part: ${className} - expected size: ${size}`)
+      const dataWithSchema = mergeArrayAndSchema(
+        data,
+        className,
+        this.#srcLines
+      )
       fs.writeFileSync(
-        `mm/${tableName}.json`,
-        JSON.stringify(mergeDataAndStruct(data, structDef), null, 2)
+        `mm/${className}.json`,
+        JSON.stringify(dataWithSchema, null, 2)
       )
     }
   }

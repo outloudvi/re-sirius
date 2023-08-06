@@ -21,8 +21,9 @@ export default function getClassProperties(
   className: string,
   lines: readonly string[]
 ): ClassField[] {
+  const clearClassName = className.replace(/Nullable<(.+)>/, "$1")
   const classConstLine = lines.findIndex((line) =>
-    line.includes(`class ${className} `)
+    line.includes(`class ${clearClassName} `)
   )
   const classStartLine = findText("{", lines, classConstLine + 1)
   const classEndLine = findText("}", lines, classStartLine + 1)
