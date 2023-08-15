@@ -26,13 +26,13 @@ function buildStructInside(x: any) {
 export function unpackMsgpackLz4Payload(obj: any): any {
   if (
     Array.isArray(obj) &&
-    obj.length === 2 &&
+    obj.length >= 2 &&
     obj[0] instanceof ExtBuffer &&
     obj[0].type === 0x62
   ) {
     // Lz4BlockArray
-    const innerMsgpackBuf = decompress(obj[1])
-    const decodedInner = decode(innerMsgpackBuf)
+    const innerMsgpackBufs = obj.slice(1).map((x) => decompress(x))
+    const decodedInner = decode(Buffer.concat(innerMsgpackBufs))
     return decodedInner
   } else if (obj instanceof ExtBuffer && obj.type === 0x63) {
     // Lz4Block
