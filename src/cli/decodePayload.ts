@@ -1,5 +1,4 @@
 import { readFileSync } from "node:fs"
-import { inspect } from "node:util"
 
 import decodePayload from "#/utils/decodePayload"
 import hexToBuffer from "#/utils/hexToBuffer"
