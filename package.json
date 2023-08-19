@@ -5,6 +5,7 @@
   "scripts": {
     "build": "tsc",
     "build:bin": "esbuild src/cli/* --bundle --platform=node --target=node16 --packages=external --outdir=bin/",
+    "cli": "node -r esbuild-register",
     "test": "mocha",
     "test:w": "mocha --watch --parallel"
   },

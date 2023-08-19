@@ -2,13 +2,14 @@
 
 ## Usage
 
-```sh
-pnpm install
-node -r esbuild-register src/cli/masterReader.ts masterdata.db
-```
+CLI: [src/cli/README.md](src/cli/README.md)
 
 ## Tests
 
 ```sh
 pnpm run test
 ```
+
+## License
+
+AGPLv3
