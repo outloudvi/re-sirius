@@ -25,6 +25,7 @@ const CSharpBuiltinTypes = [
 ]
 
 const StructDefCache: Record<string, ClassField[]> = {}
+const WarningLinesCache: string[] = []
 
 function mergeStructAndSchema(
   data: any,
@@ -42,7 +43,11 @@ function mergeStructAndSchema(
   for (const [key, val] of Object.entries(data)) {
     const prop = structDef.find((x) => x.index === Number(key))
     if (prop === undefined) {
-      console.warn(`Unknown property order ${key} in ${className}, skipping`)
+      const text = `[${className}] Unknown property order ${key}, skipping`
+      if (!WarningLinesCache.includes(text)) {
+        console.warn(text)
+        WarningLinesCache.push(text)
+      }
       continue
     }
     const k = prop.name
