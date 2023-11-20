@@ -1,5 +1,5 @@
 import { expect } from "chai"
-import getClassProperties from "./getClassProperties"
+import { getClassProperties } from "./getClassProperties"
 
 it("getClassProperties", function () {
   expect(
