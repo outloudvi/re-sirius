@@ -1,6 +1,9 @@
 import * as fs from "node:fs"
 import decodePayload from "#/utils/decodePayload"
-import getClassProperties from "#/utils/getClassProperties"
+import {
+  getClassProperties,
+  getEnumProperties,
+} from "#/utils/getClassProperties"
 import type { ClassField } from "#/utils/getClassProperties"
 
 const CSharpBuiltinTypes = [
@@ -22,45 +25,89 @@ const CSharpBuiltinTypes = [
   "object",
   "string",
   "dynamic",
+
+  "DateTime",
 ]
 
 const StructDefCache: Record<string, ClassField[]> = {}
+const EnumDefCache: Record<string, string[]> = {}
 const WarningLinesCache: string[] = []
+
+function printWarn(text: string) {
+  if (!WarningLinesCache.includes(text)) {
+    console.warn(text)
+    WarningLinesCache.push(text)
+  }
+}
 
 function mergeStructAndSchema(
   data: any,
   className: string,
   srcLines: string[]
-): Record<string, any> {
-  if (CSharpBuiltinTypes.includes(className)) {
+): Record<string, any> | any {
+  const clearClassName = className.replace(/Nullable<(.+)>/, "$1")
+  if (CSharpBuiltinTypes.includes(clearClassName)) {
     return data
   }
+
+  // Non-struct
+  if (data === null) {
+    // null
+    return null
+  }
+  if (!Array.isArray(data)) {
+    if (Number.isNaN(data)) {
+      // non-enum
+      return data
+    }
+
+    const enumDef =
+      EnumDefCache[clearClassName] ??
+      (EnumDefCache[clearClassName] = getEnumProperties(
+        clearClassName,
+        srcLines
+      ))
+    if (enumDef.length === 0) {
+      // non-enum
+      return data
+    }
+    const item = enumDef[data]
+    if (item !== undefined) {
+      return item
+    }
+
+    // fallback
+    const maybeBitwise = tryBitwiseParse(data, enumDef)
+    if (maybeBitwise !== null) {
+      printWarn(`[${clearClassName}] Read as a bit-wise enum`)
+      return maybeBitwise.join(",")
+    }
+    printWarn(`[${clearClassName}] Unknown enum id ${data}, skipping`)
+    return data
+  }
+
+  // struct
   const structDef =
-    StructDefCache[className] ??
-    (StructDefCache[className] = getClassProperties(className, srcLines))
+    StructDefCache[clearClassName] ??
+    (StructDefCache[clearClassName] = getClassProperties(
+      clearClassName,
+      srcLines
+    ))
 
   const v: Record<string, any> = {}
   for (const [key, val] of Object.entries(data)) {
     const prop = structDef.find((x) => x.index === Number(key))
     if (prop === undefined) {
-      const text = `[${className}] Unknown property order ${key}, skipping`
-      if (!WarningLinesCache.includes(text)) {
-        console.warn(text)
-        WarningLinesCache.push(text)
-      }
+      printWarn(`[${clearClassName}] Unknown property order ${key}, skipping`)
       continue
     }
     const k = prop.name
-    if (Array.isArray(val)) {
-      if (prop.type.endsWith("[]")) {
-        // need deeper merge
-        const innerTypeName = prop.type.replace(/\[\]$/, "")
-        v[k] = val.map((x) => mergeStructAndSchema(x, innerTypeName, srcLines))
-      } else {
-        v[k] = mergeStructAndSchema(val, prop.type, srcLines)
-      }
+    if (Array.isArray(val) && prop.type.endsWith("[]")) {
+      // need deeper merge
+      const innerTypeName = prop.type.replace(/\[\]$/, "")
+      v[k] = val.map((x) => mergeStructAndSchema(x, innerTypeName, srcLines))
     } else {
-      v[k] = val
+      v[k] = mergeStructAndSchema(val, prop.type, srcLines)
     }
   }
   return v
@@ -115,6 +162,27 @@ class MasterReader {
       )
     }
   }
+}
+
+function canBeBitwiseEnum(enumDef: string[]) {
+  const keys = Object.keys(enumDef)
+  return (
+    keys.filter((x) => Number(x).toString(2).match(/10?/) === null).length === 0
+  )
+}
+
+function tryBitwiseParse(data: number, enumDef: string[]): string[] | null {
+  if (!canBeBitwiseEnum(enumDef)) return null
+  if (data === 0) {
+    return ["[NONE]"]
+  }
+  return data
+    .toString(2)
+    .split("")
+    .reverse()
+    .map((v, i) => ({ value: v, bit: 2 ** i }))
+    .filter(({ value }) => value === "1")
+    .map(({ bit }) => enumDef[bit] ?? String(bit))
 }
 
 ;(async () => {

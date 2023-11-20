@@ -17,11 +17,10 @@ function findText(
   return -1
 }
 
-export default function getClassProperties(
-  className: string,
+export function getClassProperties(
+  clearClassName: string,
   lines: readonly string[]
 ): ClassField[] {
-  const clearClassName = className.replace(/Nullable<(.+)>/, "$1")
   const classConstLine = lines.findIndex((line) =>
     line.includes(`class ${clearClassName} `)
   )
@@ -45,12 +44,37 @@ export default function getClassProperties(
         .replace(/^ +/, "")
         .split(" ")
       if (nextKey === null) {
-        console.warn(`No key found for ${name}, skipping`)
+        console.warn(`[${clearClassName}] No key found for ${name}, skipping`)
         continue
       }
       ret.push({ index: nextKey, type, name })
       nextKey = null
     }
   }
+
+  return ret
+}
+
+// public const GachaTypes Pickup = 1;
+export function getEnumProperties(
+  clearEnumName: string,
+  lines: readonly string[]
+): string[] {
+  const classConstLine = lines.findIndex((line) =>
+    line.includes(`enum ${clearEnumName} `)
+  )
+  const classStartLine = findText("{", lines, classConstLine + 1)
+  const classEndLine = findText("}", lines, classStartLine + 1)
+  const ret: string[] = []
+
+  const rgx = new RegExp(`public const ${clearEnumName} (\\w+) = (\\d+);`)
+  for (let i = classStartLine + 1; i < classEndLine; i++) {
+    const match = lines[i].match(rgx)
+    if (match === null) {
+      continue
+    }
+    ret[Number(match[2])] = match[1]
+  }
+
   return ret
 }
