@@ -1,5 +1,5 @@
 import { expect } from "chai"
-import { getClassProperties } from "./getClassProperties"
+import { getClassProperties, getEnumProperties } from "./getClassProperties"
 
 it("getClassProperties", function () {
   expect(
@@ -68,4 +68,23 @@ public class OneClass : IDataObject // TypeDefIndex: 1
       type: "Nullable<long>",
     },
   ])
+})
+
+it("getEnumProperties", function () {
+  expect(
+    getEnumProperties(
+      "OneClass",
+      `
+public enum OneClass
+{
+	// Fields
+	public int value__; // 0x0
+	public const OneClass Abc = 1;
+	public const OneClass Def_Ghi = 2;
+	public const OneClass Jkl = 5;
+}
+
+  `.split("\n")
+    )
+  ).to.deep.eq([, "Abc", "Def_Ghi", , , "Jkl"])
 })
